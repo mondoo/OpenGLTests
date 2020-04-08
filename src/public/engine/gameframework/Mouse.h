@@ -9,8 +9,7 @@ class Mouse
 public:
 	Mouse() = default;
 
-	template<typename T = Renderer<sf::RenderWindow>>
-	void SetCenter(T& renderer)
+	void SetCenter(Renderer& renderer)
 	{
 		sf::Vector2u windowCenterUnsigned = renderer->getSize() / 2u;
 		m_windowCenter = { (int)windowCenterUnsigned.x, (int)windowCenterUnsigned.y };
@@ -19,8 +18,7 @@ public:
 
 	}
 
-	template<typename T = Renderer<sf::RenderWindow>>
-	void LockPosition(T& renderer)
+	void LockPosition(Renderer& renderer)
 	{
 		if (renderer->hasFocus())
 		{
@@ -28,8 +26,7 @@ public:
 		}
 	}
 
-	template<typename T = Renderer<sf::RenderWindow>>
-	sf::Vector2i Update(T& renderer)
+	sf::Vector2i Update(Renderer& renderer)
 	{
 		sf::Vector2i mouseCurrent = sf::Mouse::getPosition(*renderer.GetWindow());
 		if (mouseCurrent != m_mouseLast && renderer->hasFocus())

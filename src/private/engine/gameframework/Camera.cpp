@@ -3,6 +3,9 @@
 #include <GLM/gtc/matrix_transform.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
+#include "engine/system/Singleton.h"
+#include "engine/gameframework/DeltaTime.h"
+
 Camera::Camera(glm::vec3 position, glm::vec3 worldUp, GLfloat yaw, GLfloat pitch, float velocity, float turnSpeed)
 	: m_position(position)
 	, m_front(glm::vec3(0.0f, 0.0f, -1.0f))
@@ -22,6 +25,8 @@ glm::mat4 Camera::CalculateViewMatrix()
 
 void Camera::UpdateKeyboard(float deltaTime)
 {
+	DeltaTime test = Singleton<DeltaTime>::GetInstance();
+
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 	{
 		MoveForwards(deltaTime);

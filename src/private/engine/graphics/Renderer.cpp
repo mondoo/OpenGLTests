@@ -1,15 +1,19 @@
 #include "engine/graphics/Renderer.h"
 
-template<class TY>
+Renderer::Renderer(sf::Vector2<int> inSize, const sf::String& inTitle, sf::ContextSettings settings, sf::Uint32 style /* = sf::Style::Default */)
+{
+	InitRenderer(inSize, inTitle, settings, style);
+}
+
+void Renderer::InitRenderer(sf::Vector2<int> inSize, const sf::String& inTitle, sf::ContextSettings settings, sf::Uint32 style /* = sf::Style::Default */)
+{
+	m_Renderer = new sf::RenderWindow(sf::VideoMode(inSize.x, inSize.y), inTitle, style, settings);
+}
+
 Renderer::~Renderer()
 {
 	m_Renderer = nullptr;
 	delete m_Renderer;
-}
-
-T* operator->() const
-{
-	return &*m_Renderer;
 }
 
 int Renderer::InitialiseGL()
@@ -48,7 +52,7 @@ void Renderer::Clear()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-T* GetWindow()
+sf::RenderWindow* Renderer::GetWindow()
 {
 	return m_Renderer;
 }

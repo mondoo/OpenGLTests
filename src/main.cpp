@@ -15,18 +15,27 @@
 #include <GLM/gtc/type_ptr.hpp>
 
 // Engine
+#include "engine/system/Singleton.h"
+#include "engine/system/Root.h"
+#include "engine/Engine.h"
+
 #include "engine/graphics/Shader.h"
 #include "engine/graphics/Renderer.h"
+
+#include "engine/gameframework/DeltaTime.h"
+#include "engine/gameframework/CameraManager.h"
 #include "engine/gameframework/Camera.h"
 #include "engine/gameframework/Mouse.h"
+
 #include "engine/graphics/Mesh.h"
 #include "engine/graphics/Shapes.h"
 #include "engine/graphics/CubeMap.h"
 #include "engine/graphics/Model.h"
-#include "engine/text/FontHandler.h"
-#include "engine/text/TextRenderer.h"
 #include "engine/graphics/Texture.h"
 #include "engine/graphics/light/Light.h"
+
+#include "engine/text/FontHandler.h"
+#include "engine/text/TextRenderer.h"
 
 static const std::string assetDirectory = "assets/";
 constexpr float toRadians = 3.14159265f / 180.0f;
@@ -79,20 +88,10 @@ void AddModel(std::vector<Model*>& models, Shader* shader, Texture* texture, Mes
 
 void main()
 {
-	//sf::RenderWindow
-	sf::ContextSettings context(24, 8, 2, 3, 3);
-	Renderer<sf::RenderWindow> renderer = Renderer<sf::RenderWindow>({ 800, 600 }, "Hello World!", context);
+	Engine engine = Engine();
+	engine.Init();
+	engine.GetRoot()->GetCameraManager()->AddCamera("Main", new Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 50.0f));
 
-	renderer->setVerticalSyncEnabled(true);
-	renderer->setMouseCursorVisible(false);
-
-	if (!renderer.InitialiseGL())
-	{
-		renderer.Terminate();
-		return;
-	}
-
-	Camera* camera;
 	std::vector<Shader*> shaders;
 	Light* ambientLight;
 	FontHandler* font = new FontHandler("FreePixel", assetDirectory + "fonts/FreePixel.ttf");
@@ -102,9 +101,7 @@ void main()
 
 	CreateShaders(shaders);
 
-	camera = new Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 50.0f);
-
-	const glm::mat4 projection = glm::perspective(45.0f, (GLfloat)renderer->getSize().x / (GLfloat)renderer->getSize().y, 0.1f, 500.0f);
+	const glm::mat4 projection = glm::perspective(45.0f, (GLfloat)engine.GetRenderer()->getSize().x / (GLfloat)engine.GetRenderer()->getSize().y, 0.1f, 500.0f);
 	for (Shader* shader : shaders)
 	{
 		shader->SetProjection(projection);
@@ -114,12 +111,10 @@ void main()
 	ambientLight->SetColour(1.0f, 1.0f, 1.0f);
 
 	std::vector<Model*> models;
-	AddModel(models, shaders[0], textures["BrickTexture"], Shapes::CreatePyramid(), ambientLight, camera);
-	AddModel(models, shaders[0], textures["DirtTexture"], Shapes::CreatePyramid(), ambientLight, camera);
-	AddModel(models, shaders[2], nullptr, Shapes::CreateCube(), nullptr, camera);
-	AddModel(models, shaders[1], textures["SkyboxTexture"], Shapes::CreateCubeMap(), ambientLight, camera);
-
-	sf::Clock deltaClock;
+	AddModel(models, shaders[0], textures["BrickTexture"], Shapes::CreatePyramid(), ambientLight, engine.GetCameraManager()["Main"]);
+	AddModel(models, shaders[0], textures["DirtTexture"], Shapes::CreatePyramid(), ambientLight, engine.GetCameraManager()["Main"]);
+	AddModel(models, shaders[2], nullptr, Shapes::CreateCube(), nullptr, engine.GetCameraManager()["Main"]);
+	AddModel(models, shaders[1], textures["SkyboxTexture"], Shapes::CreateCubeMap(), ambientLight, engine.GetCameraManager()["Main"]);
 
 	float currentRotation = 0.0f;
 	float currentSize = 0.4f;
@@ -132,39 +127,33 @@ void main()
 		text->SetColour(sf::Color::Red);
 		text->SetScale({1.0f, 1.0f});
 	}
-
-	Mouse* mouse = new Mouse();
-	mouse->SetCenter(renderer);
-
+	
 	bool lightForward = true;
 
-	while (renderer->isOpen())
+
+
+	while (engine.GetRenderer()->isOpen())
 	{
-		sf::Time deltaTime = deltaClock.restart();
 		sf::Event Event;
-		while (renderer->pollEvent(Event))
+		while (engine.GetRenderer()->pollEvent(Event))
 		{
 			if (Event.type == sf::Event::Closed)
 			{
-				renderer.Terminate();
+				engine.GetRenderer().Terminate();
 			}
 			if (Event.type == sf::Event::KeyPressed)
 			{
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 				{
-					renderer.Terminate();
+					engine.GetRenderer().Terminate();
 				}
 			}
 		}
 
-		// Keyboard
-		if (renderer->hasFocus())
-		{
-			camera->UpdateKeyboard(deltaTime.asSeconds());
-		}
+		engine.Loop();
 
 		GLfloat intensity = ambientLight->GetAmbientIntensity();
-		intensity += (lightForward ? 0.3f : -0.3f) * deltaTime.asSeconds();
+		intensity += (lightForward ? 0.3f : -0.3f) * engine.GetDeltaTime();
 		if (intensity >= 1.0f)
 		{
 			lightForward = false;
@@ -178,7 +167,7 @@ void main()
 		ambientLight->SetAmbientIntensity(intensity);
 
 
-		currentRotation += 60.0f * deltaTime.asSeconds();
+		currentRotation += 60.0f * engine.GetDeltaTime();
 		if (currentRotation >= 360.f)
 		{
 			currentRotation = 0.0f;
@@ -199,11 +188,10 @@ void main()
 			{ currentSize, currentSize, currentSize }
 		);
 
-
-		camera->MouseControl(deltaTime.asSeconds(), mouse->Update(renderer));
-
+		engine.UpdateCamera("Main");
+		
 		// Draw
-		renderer.Clear();
+		engine.GetRenderer().Clear();
 
 		for (Model* model : models)
 		{
@@ -213,11 +201,11 @@ void main()
 		glUseProgram(0);
 
 		// SFML 2D
-		renderer->pushGLStates();
-		text->SetString(std::to_string((int)(1.f / deltaTime.asSeconds())) + "FPS");
-		text->DrawText(renderer);
-		renderer->popGLStates();
+		engine.GetRenderer()->pushGLStates();
+		text->SetString(std::to_string((int)(1.f / engine.GetDeltaTime())) + "FPS");
+		text->DrawText(engine.GetRenderer());
+		engine.GetRenderer()->popGLStates();
 		
-		renderer->display();
+		engine.GetRenderer()->display();
 	}
 }
