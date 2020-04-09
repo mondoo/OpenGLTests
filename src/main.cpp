@@ -188,7 +188,6 @@ void main()
 			{ currentSize, currentSize, currentSize }
 		);
 
-		engine.UpdateCamera("Main");
 		
 		// Draw
 		engine.GetRenderer().Clear();

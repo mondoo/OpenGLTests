@@ -7,16 +7,9 @@ class DeltaTime
 public:
 	DeltaTime() = default;
 
-	void Update()
-	{
-		sf::Time deltaTime = m_deltaClock.restart();
-		m_deltaTime = deltaTime.asSeconds();
-	}
+	void Update();
 
-	const float& GetDeltaTime()
-	{
-		return m_deltaTime;
-	}
+	const float& GetDeltaTime();
 
 private:
 	sf::Clock m_deltaClock;

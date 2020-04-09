@@ -26,15 +26,8 @@ public:
 
 	void Clear();
 
-	void setVerticalSyncEnabled(bool isEnable)
-	{
-		m_Renderer->setVerticalSyncEnabled(true);
-	}
-	
-	void setMouseCursorVisible(bool isVisible)
-	{
-		m_Renderer->setMouseCursorVisible(false);
-	}
+	void setVerticalSyncEnabled(bool isEnable);
+	void setMouseCursorVisible(bool isVisible);
 
 	sf::RenderWindow* GetWindow();
 

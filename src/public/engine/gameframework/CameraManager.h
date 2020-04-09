@@ -14,19 +14,9 @@ public:
 		return GetCamera(key);
 	}
 
-	void AddCamera(const std::string& key, Camera* camera)
-	{
-		m_cameras.insert_or_assign(key, camera);
-	}
+	void AddCamera(const std::string& key, Camera* camera);
 
-	Camera* GetCamera(const std::string& key)
-	{
-		if (m_cameras.find(key) == m_cameras.end())
-		{
-			return nullptr;
-		}
-		return m_cameras[key];
-	}
+	Camera* GetCamera(const std::string& key);
 
 private:
 	std::unordered_map<std::string, Camera*> m_cameras;

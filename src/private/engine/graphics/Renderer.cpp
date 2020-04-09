@@ -52,6 +52,16 @@ void Renderer::Clear()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+void Renderer::setVerticalSyncEnabled(bool isEnable)
+{
+	m_Renderer->setVerticalSyncEnabled(true);
+}
+
+void Renderer::setMouseCursorVisible(bool isVisible)
+{
+	m_Renderer->setMouseCursorVisible(false);
+}
+
 sf::RenderWindow* Renderer::GetWindow()
 {
 	return m_Renderer;
