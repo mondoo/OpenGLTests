@@ -1,5 +1,11 @@
 #include "engine/graphics/Model.h"
 
+#include "engine/graphics/Shader.h"
+#include "engine/graphics/Texture.h"
+#include "engine/graphics/Mesh.h"
+#include "engine/gameframework/Camera.h"
+#include "engine/graphics/light/Light.h"
+
 Model::Model(Shader* shader, Texture* texture, Mesh* mesh, Light* light, Camera* camera)
 	: m_shader(shader)
 	, m_texture(texture)

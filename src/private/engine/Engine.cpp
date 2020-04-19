@@ -25,14 +25,11 @@ void Engine::Init()
 	}
 
 	ECS = entt::registry{};
-
-	//m_root->GetMouse()->LockPosition(GetWindow());
 }
 
 void Engine::Loop()
 {
 	m_root->GetDeltaTime()->Update();
-	//UpdateCamera("Main");
 }
 
 const float& Engine::GetDeltaTime()
@@ -58,4 +55,9 @@ sf::RenderWindow* Engine::GetWindow()
 entt::registry& Engine::GetECS()
 {
 	return ECS;
+}
+
+ResourceManager* Engine::GetResourceManager()
+{
+	return m_root->GetResourceManager();
 }

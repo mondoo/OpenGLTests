@@ -1,5 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
+#include <objbase.h>
+
 #include <vector>
 #include <iostream>
 #include <unordered_map>
@@ -55,29 +57,15 @@ static Engine& GetEngine()
 	return engine;
 }
 
-void CreateShaders(std::vector<Shader*>& shaders)
-{
-	Shader* shader = new Shader();
-	shader->CreateFromFiles("shaders/shader.vert", "shaders/shader.frag");
-	shaders.push_back(shader);
-
-	Shader* cubeMap = new Shader();
-	cubeMap->CreateFromFiles("shaders/cubemap.vert", "shaders/cubemap.frag");
-	cubeMap->SetIsFixed(true);
-	shaders.push_back(cubeMap);
-
-	Shader* blank = new Shader();
-	blank->CreateFromFiles("shaders/blank.vert", "shaders/blank.frag");
-	shaders.push_back(blank);
-}
-
-void LoadTextures(std::unordered_map<std::string, Texture*>& textures)
+void LoadAssets()
 {
 	Texture* brickTexture = new Texture(assetDirectory + "textures/brick.png");
 	brickTexture->LoadTexture();
+	Global::GetEngine().GetResourceManager()->Create("BrickTexture", brickTexture, ResourceType::Image);
 	
 	Texture* dirtTexture = new Texture(assetDirectory + "textures/dirt.png");
 	dirtTexture->LoadTexture();
+	Global::GetEngine().GetResourceManager()->Create("DirtTexture", dirtTexture, ResourceType::Image);
 
 	Texture* skyboxTexture = new Texture();
 	skyboxTexture->SetTextureType(GL_TEXTURE_CUBE_MAP);
@@ -89,30 +77,38 @@ void LoadTextures(std::unordered_map<std::string, Texture*>& textures)
 		assetDirectory + "textures/skybox/front.jpg",
 		assetDirectory + "textures/skybox/back.jpg"
 	});
+	Global::GetEngine().GetResourceManager()->Create("SkyboxTexture", skyboxTexture, ResourceType::Image);
 
-	textures.insert({ "BrickTexture", brickTexture });
-	textures.insert({ "DirtTexture", dirtTexture });
-	textures.insert({ "SkyboxTexture", skyboxTexture });
+	Shader* shader = new Shader();
+	shader->CreateFromFiles("shaders/shader.vert", "shaders/shader.frag");
+	Global::GetEngine().GetResourceManager()->Create("DefaultShader", shader, ResourceType::Shader);
+
+	Shader* cubeMap = new Shader();
+	cubeMap->CreateFromFiles("shaders/cubemap.vert", "shaders/cubemap.frag");
+	cubeMap->SetIsFixed(true);
+	Global::GetEngine().GetResourceManager()->Create("CubemapShader", cubeMap, ResourceType::Shader);
+
+	Shader* blank = new Shader();
+	blank->CreateFromFiles("shaders/blank.vert", "shaders/blank.frag");
+	Global::GetEngine().GetResourceManager()->Create("NullShader", blank, ResourceType::Shader);
 }
 
 void main()
 {
+	CoInitialize(nullptr);
+
 	Global::GetEngine().Init();
 
-	std::vector<Shader*> shaders;
 	Light* ambientLight;
 	ambientLight = new Light();
 	ambientLight->SetColour(1.0f, 1.0f, 1.0f);
 
-	std::unordered_map<std::string, Texture*> textures;
-	LoadTextures(textures);
-	CreateShaders(shaders);
+	LoadAssets();
 
 	const glm::mat4 projection = glm::perspective(45.0f, (GLfloat)Global::GetEngine().GetRenderer()->getSize().x / (GLfloat)Global::GetEngine().GetRenderer()->getSize().y, 0.1f, 500.0f);
-	for (Shader* shader : shaders)
-	{
-		shader->SetProjection(projection);
-	}
+	Global::FindAsset<Shader>("DefaultShader")->SetProjection(projection);
+	Global::FindAsset<Shader>("CubemapShader")->SetProjection(projection);
+	Global::FindAsset<Shader>("NullShader")->SetProjection(projection);
 
 	FontHandler* font = new FontHandler("FreePixel", assetDirectory + "fonts/FreePixel.ttf");
 	TextRenderer* text = new TextRenderer();
@@ -125,10 +121,10 @@ void main()
 
 	auto playerEntity = PlayerSystem::CreatePlayer();
 
-	MeshSystem::CreateMesh({ 0.0f, 0.0f, -2.5f }, shaders[0], textures["BrickTexture"], Shapes::CreatePyramid(), ambientLight);
-	MeshSystem::CreateMesh({ -1.0f, -1.0f, -4.5f }, shaders[0], textures["DirtTexture"], Shapes::CreatePyramid(), ambientLight);
-	MeshSystem::CreateMesh({ -2.0f, -2.0f, -4.5f }, shaders[2], nullptr, Shapes::CreateCube(), nullptr);
-	MeshSystem::CreateMesh({ 0.0f, 0.0f, 0.0f }, shaders[1], textures["SkyboxTexture"], Shapes::CreateCubeMap(), ambientLight);
+	MeshSystem::CreateMesh({ 0.0f, 0.0f, -2.5f }, Global::FindAsset<Shader>("DefaultShader"), Global::FindAsset<Texture>("BrickTexture"), Shapes::CreatePyramid(), ambientLight);
+	MeshSystem::CreateMesh({ -1.0f, -1.0f, -4.5f }, Global::FindAsset<Shader>("DefaultShader"), Global::FindAsset<Texture>("DirtTexture"), Shapes::CreatePyramid(), ambientLight);
+	MeshSystem::CreateMesh({ -2.0f, -2.0f, -4.5f }, Global::FindAsset<Shader>("NullShader"), nullptr, Shapes::CreateCube(), nullptr);
+	MeshSystem::CreateMesh({ 0.0f, 0.0f, 0.0f }, Global::FindAsset<Shader>("CubemapShader"), Global::FindAsset<Texture>("SkyboxTexture"), Shapes::CreateCubeMap(), ambientLight);
 
 	float currentRotation = 0.0f;
 	float currentSize = 0.4f;

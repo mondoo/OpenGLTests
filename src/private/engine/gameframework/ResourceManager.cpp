@@ -13,11 +13,9 @@ ResourceManager::~ResourceManager()
 	delete m_tail;
 }
 
-Resource* ResourceManager::Create()
+Resource* ResourceManager::Create(char* name, void* asset, ResourceType type)
 {
-	Resource* temp = new Resource();
-	temp->m_path = "Hello world!";
-	temp->m_type = ResourceType::Image;
+	Resource* temp = new Resource(name, asset, type);
 
 	Insert(temp);
 
@@ -61,7 +59,7 @@ void ResourceManager::Remove(Resource* resource)
 Resource* ResourceManager::Find(std::function<bool(Resource*)> fn)
 {
 	Resource* thisResource = m_head;
-	while (m_head != nullptr)
+	while (thisResource != nullptr)
 	{
 		if (fn(thisResource))
 		{

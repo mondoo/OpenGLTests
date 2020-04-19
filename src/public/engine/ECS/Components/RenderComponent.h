@@ -4,6 +4,8 @@
 
 #include "Components.h"
 
+#include "engine/graphics/Shader.h"
+
 struct RenderComponent
 {
 	RenderComponent() = default;

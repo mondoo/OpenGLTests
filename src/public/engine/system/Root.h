@@ -6,8 +6,7 @@
 
 #include "engine/graphics/Renderer.h"
 #include "engine/gameframework/DeltaTime.h"
-#include "engine/gameframework/CameraManager.h"
-#include "engine/gameframework/Mouse.h"
+#include "engine/gameframework/ResourceManager.h"
 
 class Root : public Singleton<Root>
 {
@@ -16,13 +15,11 @@ public:
 	~Root();
 
 	Renderer* GetRenderer();
-	CameraManager* GetCameraManager();
-	Mouse* GetMouse();
 	DeltaTime* GetDeltaTime();
+	ResourceManager* GetResourceManager();
 
 private:
 	Renderer* m_renderer;
-	CameraManager* m_camera;
-	Mouse* m_mouse;
 	DeltaTime* m_deltaTime;
+	ResourceManager* m_resourceManager;
 };

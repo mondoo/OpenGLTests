@@ -1,12 +1,13 @@
 #pragma once
 
 #include <GLM/glm.hpp>
+#include <SFML/System/Vector3.hpp>
 
-#include "Shader.h"
-#include "Texture.h"
-#include "Mesh.h"
-#include "engine/gameframework/Camera.h"
-#include "light/Light.h"
+class Shader;
+class Texture;
+class Mesh;
+class Light;
+class Camera;
 
 class Model
 {

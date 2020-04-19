@@ -35,4 +35,18 @@ namespace Global
 	{
 		return engine.GetECS();
 	}
+
+	template<typename T = Texture>
+	T* FindAsset(char* name)
+	{
+		return GetEngine().GetResourceManager()->Find<T>(name);
+	}
+
+	/*
+	template<typename T = Texture>
+	std::vector<T*> FilterAssetsByType(ResourceType type)
+	{
+
+	}
+	*/
 }
