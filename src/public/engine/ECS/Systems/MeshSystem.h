@@ -32,8 +32,6 @@ namespace MeshSystem
 			auto [transformComponent, renderComponent] = renderView.get<TransformComponent, RenderComponent>(entity);
 
 			transformComponent.SetRotatation(rotation);
-			transformComponent.ApplyTransforms();
-
 
 			renderComponent.Render(transformComponent, Global::GetECS().get<CameraComponent>(playerEntity));
 		}

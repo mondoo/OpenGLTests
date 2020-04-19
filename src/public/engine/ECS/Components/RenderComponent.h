@@ -40,6 +40,8 @@ struct RenderComponent
 
 	void Render(TransformComponent& transforms, CameraComponent& camera)
 	{
+		transforms.ApplyTransforms();
+
 		if (!m_shouldRender)
 		{
 			return;

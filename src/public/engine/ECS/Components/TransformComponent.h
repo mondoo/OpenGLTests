@@ -63,27 +63,6 @@ struct TransformComponent
 	{
 		m_transforms = glm::scale(m_transforms, m_scale);
 	}
-
-	/*
-
-	void SetTranslation(float x = 0.0f, float y = 0.0f, float z = 0.0f)
-	{
-		m_transforms = glm::translate(m_transforms, glm::vec3(x, y, z));
-	}
-
-	void SetRotatation(float radians = 0.0f)
-	{
-		m_transforms = glm::rotate(m_transforms, radians, glm::vec3(0.0f, 1.0f, 0.0f));
-	}
-
-	void SetScale(float x, float y, float z)
-	{
-		m_transforms = glm::scale(m_transforms, glm::vec3(x, y, z));
-	}
-
-	 */
-
-
 	
 	void SetTransforms(sf::Vector3f translation, float rotation, sf::Vector3f scale)
 	{
