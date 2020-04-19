@@ -24,25 +24,15 @@ void Engine::Init()
 		return;
 	}
 
-	m_root->GetMouse()->LockPosition(GetWindow());
+	ECS = entt::registry{};
+
+	//m_root->GetMouse()->LockPosition(GetWindow());
 }
 
 void Engine::Loop()
 {
 	m_root->GetDeltaTime()->Update();
-	UpdateCamera("Main");
-}
-
-void Engine::UpdateCamera(const std::string& key)
-{
-	GetCameraManager()["Main"]->MouseControl(GetDeltaTime(), GetRoot()->GetMouse()->Update(GetWindow()));
-
-	if (GetRenderer()->hasFocus())
-	{
-		GetCameraManager()["Main"]->UpdateKeyboard(GetDeltaTime());
-	}
-
-	m_root->GetMouse()->SetCenter(GetWindow());
+	//UpdateCamera("Main");
 }
 
 const float& Engine::GetDeltaTime()
@@ -65,7 +55,7 @@ sf::RenderWindow* Engine::GetWindow()
 	return m_root->GetRenderer()->GetWindow();
 }
 
-CameraManager& Engine::GetCameraManager()
+entt::registry& Engine::GetECS()
 {
-	return *m_root->GetCameraManager();
+	return ECS;
 }

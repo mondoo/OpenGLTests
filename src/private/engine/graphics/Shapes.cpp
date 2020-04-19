@@ -82,3 +82,21 @@ Mesh* Shapes::CreateCube()
 	mesh->CreateMesh(vertices, 0, 3 * 36, 12 * 3, false);
 	return mesh;
 }
+
+Mesh* Shapes::CreatePlane()
+{
+	GLfloat vertices[] = {
+		//	x		y		z	
+		-0.8f,  0.8f, 0.0f,
+		0.8f,  0.8f, 0.0f,
+		-0.8f, -0.8f, 0.0f,
+
+		-0.8f, -0.8f, 0.0f,
+		0.8f,  0.8f, 0.0f,
+		0.8f, -0.8f, 0.0f,
+	};
+
+	Mesh* mesh = new Mesh();
+	mesh->CreateMesh(vertices, 0, 12, 12, false);
+	return mesh;
+}

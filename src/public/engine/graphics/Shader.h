@@ -5,6 +5,8 @@
 #include <SFML/System/Vector3.hpp>
 #include <string>
 
+#include "engine/ECS/Components/TransformComponent.h"
+
 class Shader
 {
 public:
@@ -35,6 +37,7 @@ public:
 	void SetScale(float x, float y, float z);
 	void SetScale(float scale = 1.0f);
 	void SetTransforms(sf::Vector3f translation, float rotation, sf::Vector3f scale);
+	void SetTransforms(TransformComponent& transforms);
 	void ResetTransforms();
 
 	void SetColour(glm::vec4 colour);

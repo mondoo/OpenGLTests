@@ -2,6 +2,7 @@
 
 #include "engine/system/Singleton.h"
 #include "engine/system/Root.h"
+#include "engine/gameframework/entt.hpp"
 
 class Engine : public Singleton<Engine>
 {
@@ -14,7 +15,6 @@ public:
 
 	void Loop();
 
-	void UpdateCamera(const std::string& key);
 
 	const float& GetDeltaTime();
 
@@ -24,8 +24,9 @@ public:
 
 	sf::RenderWindow* GetWindow();
 
-	CameraManager& GetCameraManager();
+	entt::registry& GetECS();
 
 private:
 	Root* m_root;
+	entt::registry ECS;
 };

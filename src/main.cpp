@@ -37,8 +37,23 @@
 #include "engine/text/FontHandler.h"
 #include "engine/text/TextRenderer.h"
 
+
+#include "engine/gameframework/entt.hpp"
+#include "engine/ECS/Components/Components.h"
+
+
+#include "engine/Global.h"
+#include "engine/ECS/Systems/Systems.h"
+
 static const std::string assetDirectory = "assets/";
 constexpr float toRadians = 3.14159265f / 180.0f;
+
+Engine engine = Engine();
+
+static Engine& GetEngine()
+{
+	return engine;
+}
 
 void CreateShaders(std::vector<Shader*>& shaders)
 {
@@ -80,131 +95,84 @@ void LoadTextures(std::unordered_map<std::string, Texture*>& textures)
 	textures.insert({ "SkyboxTexture", skyboxTexture });
 }
 
-void AddModel(std::vector<Model*>& models, Shader* shader, Texture* texture, Mesh* mesh, Light* light, Camera* camera)
-{
-	Model* model = new Model(shader, texture, mesh, light, camera);
-	models.push_back(model);
-}
-
 void main()
 {
-	Engine engine = Engine();
-	engine.Init();
-	engine.GetRoot()->GetCameraManager()->AddCamera("Main", new Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -90.0f, 0.0f, 5.0f, 50.0f));
+	Global::GetEngine().Init();
 
 	std::vector<Shader*> shaders;
 	Light* ambientLight;
-	FontHandler* font = new FontHandler("FreePixel", assetDirectory + "fonts/FreePixel.ttf");
+	ambientLight = new Light();
+	ambientLight->SetColour(1.0f, 1.0f, 1.0f);
 
 	std::unordered_map<std::string, Texture*> textures;
 	LoadTextures(textures);
-
 	CreateShaders(shaders);
 
-	const glm::mat4 projection = glm::perspective(45.0f, (GLfloat)engine.GetRenderer()->getSize().x / (GLfloat)engine.GetRenderer()->getSize().y, 0.1f, 500.0f);
+	const glm::mat4 projection = glm::perspective(45.0f, (GLfloat)Global::GetEngine().GetRenderer()->getSize().x / (GLfloat)Global::GetEngine().GetRenderer()->getSize().y, 0.1f, 500.0f);
 	for (Shader* shader : shaders)
 	{
 		shader->SetProjection(projection);
 	}
 
-	ambientLight = new Light();
-	ambientLight->SetColour(1.0f, 1.0f, 1.0f);
-
-	std::vector<Model*> models;
-	AddModel(models, shaders[0], textures["BrickTexture"], Shapes::CreatePyramid(), ambientLight, engine.GetCameraManager()["Main"]);
-	AddModel(models, shaders[0], textures["DirtTexture"], Shapes::CreatePyramid(), ambientLight, engine.GetCameraManager()["Main"]);
-	AddModel(models, shaders[2], nullptr, Shapes::CreateCube(), nullptr, engine.GetCameraManager()["Main"]);
-	AddModel(models, shaders[1], textures["SkyboxTexture"], Shapes::CreateCubeMap(), ambientLight, engine.GetCameraManager()["Main"]);
-
-	float currentRotation = 0.0f;
-	float currentSize = 0.4f;
-	bool sizeDirection = true;
-
+	FontHandler* font = new FontHandler("FreePixel", assetDirectory + "fonts/FreePixel.ttf");
 	TextRenderer* text = new TextRenderer();
 	if (font->GetFont("FreePixel").has_value())
 	{
 		text->SetFont(font->GetFont("FreePixel").value());
 		text->SetColour(sf::Color::Red);
-		text->SetScale({1.0f, 1.0f});
+		text->SetScale({ 1.0f, 1.0f });
 	}
-	
-	bool lightForward = true;
 
+	auto playerEntity = PlayerSystem::CreatePlayer();
 
+	MeshSystem::CreateMesh({ 0.0f, 0.0f, -2.5f }, shaders[0], textures["BrickTexture"], Shapes::CreatePyramid(), ambientLight);
+	MeshSystem::CreateMesh({ -1.0f, -1.0f, -4.5f }, shaders[0], textures["DirtTexture"], Shapes::CreatePyramid(), ambientLight);
+	MeshSystem::CreateMesh({ -2.0f, -2.0f, -4.5f }, shaders[2], nullptr, Shapes::CreateCube(), nullptr);
+	MeshSystem::CreateMesh({ 0.0f, 0.0f, 0.0f }, shaders[1], textures["SkyboxTexture"], Shapes::CreateCubeMap(), ambientLight);
 
-	while (engine.GetRenderer()->isOpen())
+	float currentRotation = 0.0f;
+	float currentSize = 0.4f;
+
+	while (Global::IsOpen())
 	{
 		sf::Event Event;
-		while (engine.GetRenderer()->pollEvent(Event))
+		while (Global::GetRenderer()->pollEvent(Event))
 		{
 			if (Event.type == sf::Event::Closed)
 			{
-				engine.GetRenderer().Terminate();
+				Global::GetRenderer().Terminate();
 			}
 			if (Event.type == sf::Event::KeyPressed)
 			{
 				if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
 				{
-					engine.GetRenderer().Terminate();
+					Global::GetRenderer().Terminate();
 				}
 			}
 		}
 
-		engine.Loop();
+		Global::GetEngine().Loop();
 
-		GLfloat intensity = ambientLight->GetAmbientIntensity();
-		intensity += (lightForward ? 0.3f : -0.3f) * engine.GetDeltaTime();
-		if (intensity >= 1.0f)
-		{
-			lightForward = false;
-			intensity = 1.0f;
-		}
-		else if (intensity <= 0.0f)
-		{
-			lightForward = true;
-			intensity = 0.0f;
-		}
-		ambientLight->SetAmbientIntensity(intensity);
+		PlayerSystem::UpdatePlayer();
 
+		Global::GetRenderer().Clear();
 
-		currentRotation += 60.0f * engine.GetDeltaTime();
+		currentRotation += 60.0f * Global::GetDeltaTime();
 		if (currentRotation >= 360.f)
 		{
 			currentRotation = 0.0f;
 		}
-		models[0]->SetTransforms(
-			{ 0.0f, 0.0f, -2.5f },
-			currentRotation * toRadians,
-			{ currentSize, currentSize, currentSize }
-		);
-		models[1]->SetTransforms(
-			{ -1.0f, -1.0f, -4.5f },
-			currentRotation * toRadians,
-			{ currentSize, currentSize, currentSize }
-		);
-		models[2]->SetTransforms(
-			{ 1.0f, -1.0f, -4.5f },
-			currentRotation * toRadians,
-			{ currentSize, currentSize, currentSize }
-		);
 
+		MeshSystem::UpdateMesh(playerEntity, currentRotation* toRadians);
 		
-		// Draw
-		engine.GetRenderer().Clear();
-
-		for (Model* model : models)
-		{
-			model->Render();
-		}
-
 		glUseProgram(0);
 
 		// SFML 2D
-		engine.GetRenderer()->pushGLStates();
-		text->SetString(std::to_string((int)(1.f / engine.GetDeltaTime())) + "FPS");
-		text->DrawText(engine.GetRenderer());
-		engine.GetRenderer()->popGLStates();
-		
-		engine.GetRenderer()->display();
+		Global::GetRenderer()->pushGLStates();
+		text->SetString(std::to_string((int)(1.f / Global::GetDeltaTime())) + "FPS");
+		text->DrawText(Global::GetEngine().GetRenderer());
+		Global::GetRenderer()->popGLStates();
+
+		Global::GetRenderer()->display();
 	}
 }

@@ -144,6 +144,11 @@ void Shader::SetTransforms(sf::Vector3f translation, float rotation, sf::Vector3
 	SetScale(scale.x, scale.y, scale.z);
 }
 
+void Shader::SetTransforms(TransformComponent& transforms)
+{
+	m_transforms = transforms.GetTransforms();
+}
+
 void Shader::ResetTransforms()
 {
 	m_transforms = glm::mat4(1.0f);

@@ -34,8 +34,18 @@ void Model::SetColour(glm::vec4 colour)
 	m_colour = colour;
 }
 
+void Model::SetShouldRender(bool shouldRender)
+{
+	m_shouldRender = shouldRender;
+}
+
 void Model::Render()
 {
+	if (!m_shouldRender)
+	{
+		return;
+	}
+
 	if (m_texture)
 	{
 		m_texture->UseTexture();

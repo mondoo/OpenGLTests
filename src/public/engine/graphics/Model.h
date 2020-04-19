@@ -20,6 +20,8 @@ public:
 
 	void SetColour(glm::vec4 colour);
 
+	void SetShouldRender(bool shouldRender);
+
 	void Render();
 
 private:
@@ -33,4 +35,6 @@ private:
 	sf::Vector3f m_translation;
 	float m_rotation;
 	sf::Vector3f m_scale;
+
+	bool m_shouldRender = true;
 };
