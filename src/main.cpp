@@ -3,95 +3,22 @@
 #include <objbase.h>
 
 #include <vector>
-#include <iostream>
-#include <unordered_map>
 
-// SFML
-#include <SFML/Graphics.hpp>
-#include <SFML/System.hpp>
-// OpenGL
-#include <GL/glew.h>
-#include <SFML/OpenGL.hpp>
-#include <GLM/glm.hpp>
-#include <GLM/gtc/matrix_transform.hpp>
-#include <GLM/gtc/type_ptr.hpp>
-
-// Engine
-#include "engine/system/Singleton.h"
-#include "engine/system/Root.h"
-#include "engine/Engine.h"
-
-#include "engine/graphics/Shader.h"
-#include "engine/graphics/Renderer.h"
-
-#include "engine/gameframework/DeltaTime.h"
-#include "engine/gameframework/CameraManager.h"
-#include "engine/gameframework/Camera.h"
-#include "engine/gameframework/Mouse.h"
-
-#include "engine/graphics/Mesh.h"
-#include "engine/graphics/Shapes.h"
-#include "engine/graphics/CubeMap.h"
-#include "engine/graphics/Model.h"
-#include "engine/graphics/Texture.h"
-#include "engine/graphics/light/Light.h"
+#include "engine/graphics/Graphics.h"
 
 #include "engine/text/FontHandler.h"
 #include "engine/text/TextRenderer.h"
 
-
+#include "engine/Global.h"
+#include "engine/Boot.h"
+#include "engine/types/SystemTypes.h"
 #include "engine/gameframework/entt.hpp"
 #include "engine/ECS/Components/Components.h"
-
-
-#include "engine/Global.h"
 #include "engine/ECS/Systems/Systems.h"
 
-static const std::string assetDirectory = "assets/";
 constexpr float toRadians = 3.14159265f / 180.0f;
 
 Engine engine = Engine();
-
-static Engine& GetEngine()
-{
-	return engine;
-}
-
-void LoadAssets()
-{
-	Texture* brickTexture = new Texture(assetDirectory + "textures/brick.png");
-	brickTexture->LoadTexture();
-	Global::GetEngine().GetResourceManager()->Create("BrickTexture", brickTexture, ResourceType::Image);
-	
-	Texture* dirtTexture = new Texture(assetDirectory + "textures/dirt.png");
-	dirtTexture->LoadTexture();
-	Global::GetEngine().GetResourceManager()->Create("DirtTexture", dirtTexture, ResourceType::Image);
-
-	Texture* skyboxTexture = new Texture();
-	skyboxTexture->SetTextureType(GL_TEXTURE_CUBE_MAP);
-	skyboxTexture->LoadCubeMap({
-		assetDirectory + "textures/skybox/right.jpg",
-		assetDirectory + "textures/skybox/left.jpg",
-		assetDirectory + "textures/skybox/top.jpg",
-		assetDirectory + "textures/skybox/bottom.jpg",
-		assetDirectory + "textures/skybox/front.jpg",
-		assetDirectory + "textures/skybox/back.jpg"
-	});
-	Global::GetEngine().GetResourceManager()->Create("SkyboxTexture", skyboxTexture, ResourceType::Image);
-
-	Shader* shader = new Shader();
-	shader->CreateFromFiles("shaders/shader.vert", "shaders/shader.frag");
-	Global::GetEngine().GetResourceManager()->Create("DefaultShader", shader, ResourceType::Shader);
-
-	Shader* cubeMap = new Shader();
-	cubeMap->CreateFromFiles("shaders/cubemap.vert", "shaders/cubemap.frag");
-	cubeMap->SetIsFixed(true);
-	Global::GetEngine().GetResourceManager()->Create("CubemapShader", cubeMap, ResourceType::Shader);
-
-	Shader* blank = new Shader();
-	blank->CreateFromFiles("shaders/blank.vert", "shaders/blank.frag");
-	Global::GetEngine().GetResourceManager()->Create("NullShader", blank, ResourceType::Shader);
-}
 
 void main()
 {
@@ -103,14 +30,18 @@ void main()
 	ambientLight = new Light();
 	ambientLight->SetColour(1.0f, 1.0f, 1.0f);
 
-	LoadAssets();
+	Boot::LoadAssets();
 
 	const glm::mat4 projection = glm::perspective(45.0f, (GLfloat)Global::GetEngine().GetRenderer()->getSize().x / (GLfloat)Global::GetEngine().GetRenderer()->getSize().y, 0.1f, 500.0f);
-	Global::FindAsset<Shader>("DefaultShader")->SetProjection(projection);
-	Global::FindAsset<Shader>("CubemapShader")->SetProjection(projection);
-	Global::FindAsset<Shader>("NullShader")->SetProjection(projection);
+	
+	std::vector<Shader*> shaders;
+	Global::FilterAssetsByType<Shader>(shaders, ResourceType::Shader);
+	for (Shader* shader : shaders)
+	{
+		shader->SetProjection(projection);
+	}
 
-	FontHandler* font = new FontHandler("FreePixel", assetDirectory + "fonts/FreePixel.ttf");
+	FontHandler* font = new FontHandler("FreePixel", "assets/fonts/FreePixel.ttf");
 	TextRenderer* text = new TextRenderer();
 	if (font->GetFont("FreePixel").has_value())
 	{

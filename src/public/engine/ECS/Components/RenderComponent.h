@@ -4,81 +4,29 @@
 
 #include "Components.h"
 
-#include "engine/graphics/Shader.h"
+class Mesh;
+class Shader;
+class Texture;
+class Light;
+class Camera;
 
 struct RenderComponent
 {
 	RenderComponent() = default;
 
-	void SetMesh(Mesh* mesh)
-	{
-		m_mesh = mesh;
-	}
+	void SetMesh(Mesh* mesh);
 
-	void SetShader(Shader* shader)
-	{
-		m_shader = shader;
-	}
+	void SetShader(Shader* shader);
 
-	void SetTexture(Texture* texture)
-	{
-		m_texture = texture;
-	}
+	void SetTexture(Texture* texture);
 
-	void SetLight(Light* light)
-	{
-		m_light = light;
-	}
+	void SetLight(Light* light);
 
-	void SetColour(glm::vec4 colour)
-	{
-		m_colour = colour;
-	}
+	void SetColour(glm::vec4 colour);
 
-	void SetShouldRender(bool shouldRender)
-	{
-		m_shouldRender = shouldRender;
-	}
+	void SetShouldRender(bool shouldRender);
 
-	void Render(TransformComponent& transforms, CameraComponent& camera)
-	{
-		transforms.ApplyTransforms();
-
-		if (!m_shouldRender)
-		{
-			return;
-		}
-
-		if (m_texture)
-		{
-			m_texture->UseTexture();
-		}
-
-		if (m_shader)
-		{
-			m_shader->SetCamera(!m_shader->GetIsFixed() ? camera.CalculateViewMatrix() : glm::mat3(camera.CalculateViewMatrix()));
-
-			m_shader->UseShader();
-			m_shader->SetColour(m_colour);
-			m_shader->SetTransforms(transforms);
-			if (m_light)
-			{
-				m_light->UseLight(m_shader->GetAmbientIntensityLocation(), m_shader->GetAmbientColourLocation());
-			}
-
-			m_shader->UpdateShader();
-		}
-
-		if (m_mesh)
-		{
-			m_mesh->RenderMesh();
-		}
-
-		if (m_texture)
-		{
-			m_texture->UnbindTexture();
-		}
-	}
+	void Render(TransformComponent& transforms, CameraComponent& camera);
 
 private:
 	Shader* m_shader;

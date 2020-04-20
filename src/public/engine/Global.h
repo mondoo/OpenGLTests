@@ -2,39 +2,23 @@
 
 #include "Engine.h"
 
+#include <SFML/Graphics/RenderWindow.hpp>
+
 namespace Global
 {
 	static Engine engine;
 
-	static Engine& GetEngine()
-	{
-		return engine;
-	}
+	Engine& GetEngine();
 
-	static Renderer& GetRenderer()
-	{
-		return engine.GetRenderer();
-	}
+	Renderer& GetRenderer();
 
-	static sf::RenderWindow* GetWindow()
-	{
-		return engine.GetWindow();
-	}
+	sf::RenderWindow* GetWindow();
 
-	static bool IsOpen()
-	{
-		return GetRenderer()->isOpen();
-	}
+	bool IsOpen();
 
-	const float& GetDeltaTime()
-	{
-		return engine.GetDeltaTime();
-	}
+	const float& GetDeltaTime();
 
-	entt::registry& GetECS()
-	{
-		return engine.GetECS();
-	}
+	entt::registry& GetECS();
 
 	template<typename T = Texture>
 	T* FindAsset(char* name)
@@ -42,11 +26,9 @@ namespace Global
 		return GetEngine().GetResourceManager()->Find<T>(name);
 	}
 
-	/*
 	template<typename T = Texture>
-	std::vector<T*> FilterAssetsByType(ResourceType type)
+	void FilterAssetsByType(std::vector<T*>& collection, ResourceType type)
 	{
-
+		GetEngine().GetResourceManager()->FilterByType<T>(collection, type);
 	}
-	*/
 }

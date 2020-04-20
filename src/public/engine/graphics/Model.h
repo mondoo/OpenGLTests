@@ -12,7 +12,6 @@ class Camera;
 class Model
 {
 public:
-	Model() = default;
 	Model(Shader* shader, Texture* texture, Mesh* mesh, Light* light, Camera* camera);
 
 	~Model();

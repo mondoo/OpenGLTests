@@ -22,7 +22,7 @@ public:
 	Resource* Find(std::function<bool(Resource*)> fn);
 
 	template<typename T = Texture>
-	std::vector<T*> FilterByType(std::vector<T*> collection, ResourceType type);
+	void FilterByType(std::vector<T*>& collection, ResourceType type);
 
 private:
 	Resource* m_head;
@@ -45,7 +45,7 @@ inline T* ResourceManager::Find(char* name)
 }
 
 template<typename T>
-std::vector<T*> ResourceManager::FilterByType(std::vector<T*> collection, ResourceType type)
+void ResourceManager::FilterByType(std::vector<T*>& collection, ResourceType type)
 {
 	Resource* thisResource = m_head;
 	while (thisResource != nullptr)

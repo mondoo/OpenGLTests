@@ -4,7 +4,7 @@
 #include <string>
 #include "engine/graphics/Texture.h"
 
-enum ResourceType
+enum class ResourceType : uint8_t
 {
 	Image,
 	Shader

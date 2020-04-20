@@ -4,7 +4,6 @@
 #include "engine/system/Root.h"
 #include "engine/gameframework/entt.hpp"
 
-
 class Engine : public Singleton<Engine>
 {
 public:
