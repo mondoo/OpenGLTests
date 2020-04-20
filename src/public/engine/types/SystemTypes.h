@@ -7,7 +7,10 @@
 enum class ResourceType : uint8_t
 {
 	Image,
-	Shader
+	Shader,
+	Font,
+	Text,
+	Light
 };
 
 struct Resource

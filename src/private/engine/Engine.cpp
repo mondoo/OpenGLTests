@@ -1,4 +1,5 @@
 #include "engine/Engine.h"
+#include "engine/Boot.h"
 
 Engine::Engine()
 	: m_root(new Root())
@@ -25,10 +26,37 @@ void Engine::Init()
 	}
 
 	ECS = entt::registry{};
+
+	Boot::LoadAssets();
+
+	const glm::mat4 projection = glm::perspective(45.0f, (GLfloat)GetRenderer()->getSize().x / (GLfloat)GetRenderer()->getSize().y, 0.1f, 500.0f);
+
+	std::vector<Shader*> shaders;
+	Global::FilterAssetsByType<Shader>(shaders, ResourceType::Shader);
+	for (Shader* shader : shaders)
+	{
+		shader->SetProjection(projection);
+	}
 }
 
-void Engine::Loop()
+void Engine::Tick()
 {
+	sf::Event Event;
+	while (GetRenderer()->pollEvent(Event))
+	{
+		if (Event.type == sf::Event::Closed)
+		{
+			GetRenderer().Terminate();
+		}
+		if (Event.type == sf::Event::KeyPressed)
+		{
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			{
+				GetRenderer().Terminate();
+			}
+		}
+	}
+
 	m_root->GetDeltaTime()->Update();
 }
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "engine/Global.h"
+#include "engine/Core.h"
 #include "engine/graphics/Graphics.h"
 
 namespace Boot
@@ -41,5 +41,22 @@ namespace Boot
 		Shader* blank = new Shader();
 		blank->CreateFromFiles("shaders/blank.vert", "shaders/blank.frag");
 		Global::GetEngine().GetResourceManager()->Create("NullShader", blank, ResourceType::Shader);
+
+		FontHandler* font = new FontHandler("FreePixel", "assets/fonts/FreePixel.ttf");
+		Global::GetEngine().GetResourceManager()->Create("DefaultFont", font, ResourceType::Font);
+
+		TextRenderer* text = new TextRenderer();
+		if (font->GetFont("FreePixel").has_value())
+		{
+			text->SetFont(font->GetFont("FreePixel").value());
+			text->SetColour(sf::Color::Red);
+			text->SetScale({ 1.0f, 1.0f });
+		}
+		Global::GetEngine().GetResourceManager()->Create("LogText", text, ResourceType::Text);
+
+		Light* ambientLight;
+		ambientLight = new Light();
+		ambientLight->SetColour(1.0f, 1.0f, 1.0f);
+		Global::GetEngine().GetResourceManager()->Create("GlobalLight", ambientLight, ResourceType::Light);
 	}
 }

@@ -13,7 +13,7 @@ public:
 
 	void Init();
 
-	void Loop();
+	void Tick();
 
 	const float& GetDeltaTime();
 
